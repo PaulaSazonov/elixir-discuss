@@ -8,10 +8,20 @@ defmodule DiscussWeb.Router do
     plug :put_root_layout, html: {DiscussWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug DiscussWeb.Plugs.SetUser
   end
 
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  scope "/auth", DiscussWeb do
+    pipe_through :browser
+
+    get "/logout", AuthController, :logout
+
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
   end
 
   scope "/", DiscussWeb do
@@ -21,6 +31,7 @@ defmodule DiscussWeb.Router do
 
     resources "/topics", TopicController
   end
+
 
   # Other scopes may use custom stacks.
   # scope "/api", DiscussWeb do
